@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/350k7qu6ahpuunxp?svg=true)](https://ci.appveyor.com/project/Megalapka/java-aqa2-2-selenide)
+
 # Домашнее задание к занятию «2.2. Selenide»
 
 В качестве результата пришлите ссылку на ваш GitHub-проект в личном кабинете студента на сайте [netology.ru](https://netology.ru).
