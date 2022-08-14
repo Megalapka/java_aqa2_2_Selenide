@@ -1,6 +1,7 @@
 package ru.netology.web;
 
 import com.codeborne.selenide.Configuration;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Keys;
@@ -20,12 +21,17 @@ public class CardDeliveryTest {
         open("http://localhost:9999/");
     }
 
+    @AfterEach
+    void tearDown() {
+        closeWindow();
+    }
+
     @Test
     void shouldAccessCardOrderWithoutChoosingDate() {
 
         $("[data-test-id='city'] .input__control").setValue("Санкт-Петербург");
         $(".menu-item__control").click();
-        $("[data-test-id='name'] .input__control").setValue("Иванова Ульяна Владимировна");
+        $("[data-test-id='name'] .input__control").setValue("Иванова-Петрова Ульяна Владимировна");
         $("[data-test-id='phone'] .input__control").setValue("+79876543210");
         $("[data-test-id='agreement']").click();
 
@@ -52,6 +58,159 @@ public class CardDeliveryTest {
         $x("//div[contains(text(), 'Успешно!')]").shouldBe(visible, Duration.ofSeconds(15));
 
     }
+
+    @Test
+    void shouldNotAccessWithEmptyCityField() {
+
+        String validDate = $("[data-test-id='date'] .input__control").getAttribute("defaultValue");
+        $("[data-test-id='date'] .input__control").doubleClick().sendKeys(Keys.BACK_SPACE);
+        $("[data-test-id='date'] .input__control").doubleClick().sendKeys(validDate);
+
+        $("[data-test-id='name'] .input__control").setValue("Иванова Ульяна Владимировна");
+        $("[data-test-id='phone'] .input__control").setValue("+79876543210");
+        $("[data-test-id='agreement']").click();
+
+        $(".button__text").click();
+
+        $x("//span[contains(@data-test-id, 'city')]//span[contains(text(), " +
+                "'Поле обязательно для заполнения')] ").shouldBe(visible);
+
+    }
+
+    @Test
+    void shouldNotAccessWithWrongCityField() {
+
+        $("[data-test-id='city'] .input__control").setValue("Кипр");
+        $(".button__text").click();
+
+        $("[data-test-id='name'] .input__control").setValue("Иванова Ульяна Владимировна");
+        $("[data-test-id='phone'] .input__control").setValue("+79876543210");
+        $("[data-test-id='agreement']").click();
+
+
+
+        $x("//span[contains(@data-test-id, 'city')]//span[contains(text(), " +
+                "'Доставка в выбранный город недоступна')] ").shouldBe(visible);
+
+    }
+
+
+    @Test
+    void shouldNotAccessWithEmptyDateField() {
+        $("[data-test-id='city'] .input__control").setValue("Санкт-Петербург");
+        $(".menu-item__control").click();
+
+        $("[data-test-id='date'] .input__control").doubleClick().sendKeys(Keys.BACK_SPACE);
+
+        $("[data-test-id='name'] .input__control").setValue("Иванова Ульяна Владимировна");
+        $("[data-test-id='phone'] .input__control").setValue("+79876543210");
+        $("[data-test-id='agreement']").click();
+
+        $(".button__text").click();
+
+        $x("//span[contains(@data-test-id, 'date')]//span[contains(text(), " +
+                "'Неверно введена дата')] ").shouldBe(visible);
+
+    }
+
+    @Test
+    void shouldNotAccessWithEmptyNameField() {
+        $("[data-test-id='city'] .input__control").setValue("Санкт-Петербург");
+        $(".menu-item__control").click();
+
+        $("[data-test-id='phone'] .input__control").setValue("+79876543210");
+        $("[data-test-id='agreement']").click();
+
+        $(".button__text").click();
+
+        $x("//span[contains(@data-test-id, 'name')]//span[contains(text(), " +
+                "'Поле обязательно для заполнения')] ").shouldBe();
+
+    }
+
+    @Test
+    void shouldNotAccessWithWrongNameField() {
+        $("[data-test-id='city'] .input__control").setValue("Санкт-Петербург");
+        $(".menu-item__control").click();
+
+        $("[data-test-id='name'] .input__control").setValue("Mr. Smith");
+        $("[data-test-id='phone'] .input__control").setValue("+79876543210");
+        $("[data-test-id='agreement']").click();
+
+        $(".button__text").click();
+
+        $x("//span[contains(@data-test-id, 'name')]//span[contains(text(), " +
+                "'Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы.')] ")
+                .shouldBe(visible);
+
+    }
+
+    @Test
+    void shouldNotAccessPhoneFieldPlusOneNumber() {
+        $("[data-test-id='city'] .input__control").setValue("Санкт-Петербург");
+        $(".menu-item__control").click();
+
+        $("[data-test-id='name'] .input__control").setValue("Иванова Ульяна Владимировна");
+        $("[data-test-id='phone'] .input__control").setValue("+798765432102");
+        $("[data-test-id='agreement']").click();
+
+        $(".button__text").click();
+
+        $x("//span[contains(@data-test-id, 'phone')]//span[contains(text(), " +
+                "'Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.')] ")
+                .shouldBe(visible);
+
+    }
+
+    @Test
+    void shouldNotAccessPhoneFieldShortNumber() {
+        $("[data-test-id='city'] .input__control").setValue("Санкт-Петербург");
+        $(".menu-item__control").click();
+
+        $("[data-test-id='name'] .input__control").setValue("Иванова Ульяна Владимировна");
+        $("[data-test-id='phone'] .input__control").setValue("+7902");
+        $("[data-test-id='agreement']").click();
+
+        $(".button__text").click();
+
+        $x("//span[contains(@data-test-id, 'phone')]//span[contains(text(), " +
+                "'Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.')] ")
+                .shouldBe(visible);
+
+    }
+
+    @Test
+    void shouldNotAccessPhoneFieldWithAnotherSymbols() {
+        $("[data-test-id='city'] .input__control").setValue("Санкт-Петербург");
+        $(".menu-item__control").click();
+
+        $("[data-test-id='name'] .input__control").setValue("Иванова Ульяна Владимировна");
+        $("[data-test-id='phone'] .input__control").setValue("+7rtdf3%gq4r");
+        $("[data-test-id='agreement']").click();
+
+        $(".button__text").click();
+
+        $x("//span[contains(@data-test-id, 'phone')]//span[contains(text(), " +
+                "'Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.')] ")
+                .shouldBe(visible);
+
+    }
+
+
+    @Test
+    void shouldNotAccessWithoutCheckedAgreement() {
+
+        $("[data-test-id='city'] .input__control").setValue("Санкт-Петербург");
+        $(".menu-item__control").click();
+        $("[data-test-id='name'] .input__control").setValue("Иванова-Петрова Ульяна Владимировна");
+        $("[data-test-id='phone'] .input__control").setValue("+79876543210");
+
+        $(".button__text").click();
+        $(".input_invalid[data-test-id='agreement']").shouldBe(visible);
+
+    }
+
+
 
     @Test
     void shouldAccessCardOrderForwardSevenDays() {
