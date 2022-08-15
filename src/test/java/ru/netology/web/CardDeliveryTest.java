@@ -1,7 +1,6 @@
 package ru.netology.web;
 
 import com.codeborne.selenide.Configuration;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Keys;
@@ -21,10 +20,10 @@ public class CardDeliveryTest {
         open("http://localhost:9999/");
     }
 
-    @AfterEach
-    void tearDown() {
-        closeWindow();
-    }
+//    @AfterEach
+//    void tearDown() {
+//        closeWindow();
+//    }
 
     @Test
     void shouldAccessCardOrderWithoutChoosingDate() {
@@ -60,6 +59,153 @@ public class CardDeliveryTest {
     }
 
     @Test
+    void shouldAccessCardOrderWithChoosingCityFromPopupMenu() {
+
+        $("[data-test-id='city'] .input__control").setValue("Во");
+        $x("//span[contains(text(),'Воронеж')]").click();
+
+        $("[data-test-id='name'] .input__control").setValue("Петрова Анна-Ульяна Владимировна");
+        $("[data-test-id='phone'] .input__control").setValue("+79876543210");
+        $("[data-test-id='agreement']").click();
+
+        $(".button__text").click();
+        $x("//div[contains(text(), 'Успешно!')]").shouldBe(visible, Duration.ofSeconds(15));
+
+    }
+
+
+    @Test
+    void shouldAccessCardOrderForwardSevenDays() {
+
+        LocalDate date = LocalDate.now().plusDays(7);
+        String newDate = date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+
+        $("[data-test-id='city'] .input__control").setValue("Санкт-Петербург");
+        $(".menu-item__control").click();
+
+        $("[data-test-id='date'] .input__control").doubleClick().sendKeys(Keys.BACK_SPACE);
+        $("[data-test-id='date'] .input__control").doubleClick().sendKeys(newDate);
+
+        $("[data-test-id='name'] .input__control").setValue("Иванова Ульяна Владимировна");
+        $("[data-test-id='phone'] .input__control").setValue("+79876543210");
+        $("[data-test-id='agreement']").click();
+
+        $(".button__text").click();
+        $x("//div[contains(text(), 'Успешно!')]").shouldBe(visible, Duration.ofSeconds(15));
+
+    }
+
+    @Test
+    void shouldChooseDateFromPopupCalendarEasyMode() {
+
+        LocalDate date = LocalDate.now().plusDays(7);
+        String newDate = date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+
+        $("[data-test-id='city'] .input__control").setValue("Санкт-Петербург");
+        $(".menu-item__control").click();
+
+        $("[data-test-id='date'] .input__control").doubleClick().sendKeys(Keys.BACK_SPACE);
+        $("[data-test-id='date'] .input__control").doubleClick().sendKeys(newDate);
+
+        $x("//span[contains(@class, 'icon_name_calendar')]").click();
+        $(".calendar__day_state_current").click();
+
+        $("[data-test-id='name'] .input__control").setValue("Иванова Ульяна Владимировна");
+        $("[data-test-id='phone'] .input__control").setValue("+79876543210");
+        $("[data-test-id='agreement']").click();
+
+        $(".button__text").click();
+        $x("//div[contains(text(), 'Успешно!')]").shouldBe(visible, Duration.ofSeconds(15));
+
+    }
+
+    @Test
+    void shouldChooseDateFromPopupCalendarHardMode() {
+
+        $("[data-test-id='city'] .input__control").setValue("Санкт-Петербург");
+        $(".menu-item__control").click();
+
+        String element1;
+        String element2 = $(".calendar__day_state_today").getAttribute("className");
+        $x("//span[contains(@class, 'icon_name_calendar')]").click();
+
+        int trCount = 0;
+        int tdCount = 0;
+
+        for (int i = 2; i < 7; i++) {
+            for (int j = 1; j < 8; j++) {
+                element1 = $x("//tr[" + i + "]/td[" + j + "]").getAttribute("className");
+                if (element1.equals(element2)) {
+                    trCount = i+1;
+                    tdCount = j;
+                    break;
+                }
+            }
+        }
+
+        if (trCount == 6) {
+            $$(".calendar__arrow_direction_right").get(1).click();
+            trCount=2;
+        }
+
+        $x("//tr[" + trCount + "]/td[" + tdCount + "]").click();
+
+        $("[data-test-id='name'] .input__control").setValue("Иванова Ульяна Владимировна");
+        $("[data-test-id='phone'] .input__control").setValue("+79876543210");
+        $("[data-test-id='agreement']").click();
+
+        $(".button__text").click();
+        $x("//div[contains(text(), 'Успешно!')]").shouldBe(visible, Duration.ofSeconds(15));
+
+    }
+
+    @Test
+    void shouldChooseDateFromPopupCalendarHardModeExcludeHolidays() {
+
+        $("[data-test-id='city'] .input__control").setValue("Санкт-Петербург");
+        $(".menu-item__control").click();
+
+
+        String element1;
+        String element2 = $(".calendar__day_state_today").getAttribute("className");
+        $x("//span[contains(@class, 'icon_name_calendar')]").click();
+
+        int trCount = 0;
+        int tdCount = 0;
+
+        for (int i = 2; i < 7; i++) {
+            for (int j = 1; j < 8; j++) {
+                element1 = $x("//tr[" + i + "]/td[" + j + "]").getAttribute("className");
+                if (element1.equals(element2)) {
+                    trCount = i+1;
+                    tdCount = j;
+                    break;
+                }
+            }
+        }
+
+        if (trCount == 6) {
+            $$(".calendar__arrow_direction_right").get(1).click();
+            trCount = 2;
+            if (tdCount > 5) {
+               tdCount = 1;
+            }
+        }
+        $x("//tr[" + trCount + "]/td[" + tdCount + "]").click();
+
+        $("[data-test-id='name'] .input__control").setValue("Иванова Ульяна Владимировна");
+        $("[data-test-id='phone'] .input__control").setValue("+79876543210");
+        $("[data-test-id='agreement']").click();
+
+        $(".button__text").click();
+        $x("//div[contains(text(), 'Успешно!')]").shouldBe(visible, Duration.ofSeconds(15));
+
+    }
+
+
+        //Not access tests
+    //=========================================================================================================
+    @Test
     void shouldNotAccessWithEmptyCityField() {
 
         String validDate = $("[data-test-id='date'] .input__control").getAttribute("defaultValue");
@@ -86,7 +232,6 @@ public class CardDeliveryTest {
         $("[data-test-id='name'] .input__control").setValue("Иванова Ульяна Владимировна");
         $("[data-test-id='phone'] .input__control").setValue("+79876543210");
         $("[data-test-id='agreement']").click();
-
 
 
         $x("//span[contains(@data-test-id, 'city')]//span[contains(text(), " +
@@ -180,6 +325,24 @@ public class CardDeliveryTest {
     }
 
     @Test
+    void shouldNotAccessPhoneFieldWithoutPlus() {
+        $("[data-test-id='city'] .input__control").setValue("Санкт-Петербург");
+        $(".menu-item__control").click();
+
+        $("[data-test-id='name'] .input__control").setValue("Иванова Ульяна Владимировна");
+        $("[data-test-id='phone'] .input__control").setValue("79012345678");
+        $("[data-test-id='agreement']").click();
+
+        $(".button__text").click();
+
+        $x("//span[contains(@data-test-id, 'phone')]//span[contains(text(), " +
+                "'Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.')] ")
+                .shouldBe(visible);
+
+    }
+
+
+    @Test
     void shouldNotAccessPhoneFieldWithAnotherSymbols() {
         $("[data-test-id='city'] .input__control").setValue("Санкт-Петербург");
         $(".menu-item__control").click();
@@ -196,7 +359,6 @@ public class CardDeliveryTest {
 
     }
 
-
     @Test
     void shouldNotAccessWithoutCheckedAgreement() {
 
@@ -211,44 +373,4 @@ public class CardDeliveryTest {
     }
 
 
-
-    @Test
-    void shouldAccessCardOrderForwardSevenDays() {
-
-        LocalDate date = LocalDate.now().plusDays(7);
-        String newDate = date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-
-        $("[data-test-id='city'] .input__control").setValue("Санкт-Петербург");
-        $(".menu-item__control").click();
-
-        $("[data-test-id='date'] .input__control").doubleClick().sendKeys(Keys.BACK_SPACE);
-        $("[data-test-id='date'] .input__control").doubleClick().sendKeys(newDate);
-
-        $("[data-test-id='name'] .input__control").setValue("Иванова Ульяна Владимировна");
-        $("[data-test-id='phone'] .input__control").setValue("+79876543210");
-        $("[data-test-id='agreement']").click();
-
-        $(".button__text").click();
-        $x("//div[contains(text(), 'Успешно!')]").shouldBe(visible, Duration.ofSeconds(15));
-
-    }
-
-    @Test
-    void shouldChooseDateFromPopupCalendar() {
-
-        $("[data-test-id='city'] .input__control").setValue("Санкт-Петербург");
-        $(".menu-item__control").click();
-
-        $x("//span[contains(@class, 'icon_name_calendar')]").click();
-        $(".calendar-input__calendar-wrapper").isDisplayed();
-
-
-        $("[data-test-id='name'] .input__control").setValue("Иванова Ульяна Владимировна");
-        $("[data-test-id='phone'] .input__control").setValue("+79876543210");
-        $("[data-test-id='agreement']").click();
-
-        $(".button__text").click();
-        $x("//div[contains(text(), 'Успешно!')]").shouldBe(visible, Duration.ofSeconds(15));
-
-    }
 }
