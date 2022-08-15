@@ -1,6 +1,7 @@
 package ru.netology.web;
 
 import com.codeborne.selenide.Configuration;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Keys;
@@ -20,10 +21,10 @@ public class CardDeliveryTest {
         open("http://localhost:9999/");
     }
 
-//    @AfterEach
-//    void tearDown() {
-//        closeWindow();
-//    }
+    @AfterEach
+    void tearDown() {
+        closeWindow();
+    }
 
     @Test
     void shouldAccessCardOrderWithoutChoosingDate() {
