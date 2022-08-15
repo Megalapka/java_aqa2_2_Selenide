@@ -136,7 +136,7 @@ public class CardDeliveryTest {
             for (int j = 1; j < 8; j++) {
                 element1 = $x("//tr[" + i + "]/td[" + j + "]").getAttribute("className");
                 if (element1.equals(element2)) {
-                    trCount = i+1;
+                    trCount = i + 1;
                     tdCount = j;
                     break;
                 }
@@ -145,7 +145,7 @@ public class CardDeliveryTest {
 
         if (trCount == 6) {
             $$(".calendar__arrow_direction_right").get(1).click();
-            trCount=2;
+            trCount = 2;
         }
 
         $x("//tr[" + trCount + "]/td[" + tdCount + "]").click();
@@ -156,7 +156,6 @@ public class CardDeliveryTest {
 
         $(".button__text").click();
         $x("//div[contains(text(), 'Успешно!')]").shouldBe(visible, Duration.ofSeconds(15));
-
     }
 
     @Test
@@ -164,7 +163,6 @@ public class CardDeliveryTest {
 
         $("[data-test-id='city'] .input__control").setValue("Санкт-Петербург");
         $(".menu-item__control").click();
-
 
         String element1;
         String element2 = $(".calendar__day_state_today").getAttribute("className");
@@ -177,7 +175,7 @@ public class CardDeliveryTest {
             for (int j = 1; j < 8; j++) {
                 element1 = $x("//tr[" + i + "]/td[" + j + "]").getAttribute("className");
                 if (element1.equals(element2)) {
-                    trCount = i+1;
+                    trCount = i + 1;
                     tdCount = j;
                     break;
                 }
@@ -188,7 +186,7 @@ public class CardDeliveryTest {
             $$(".calendar__arrow_direction_right").get(1).click();
             trCount = 2;
             if (tdCount > 5) {
-               tdCount = 1;
+                tdCount = 1;
             }
         }
         $x("//tr[" + trCount + "]/td[" + tdCount + "]").click();
@@ -203,7 +201,7 @@ public class CardDeliveryTest {
     }
 
 
-        //Not access tests
+    //Not access tests
     //=========================================================================================================
     @Test
     void shouldNotAccessWithEmptyCityField() {
